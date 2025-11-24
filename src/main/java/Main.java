@@ -20,8 +20,8 @@ public class Main {
                     3. Rechercher par nom
                     4. Mettre à jour un fichier
                     5. Supprimer un fichier
-                    6.Tester actions polymorphes
-                    0.Quitter
+                    6. Tester actions polymorphes
+                    0. Quitter
                     Choix: """);
             String choix = entree.nextLine().trim();
             try {
@@ -49,7 +49,7 @@ public class Main {
         System.out.println("Nom: "); String nom= entree.nextLine();
         System.out.println("Taille (long): "); long taille = Long.parseLong(entree.nextLine());
         System.out.println("Chemin: "); String chemin= entree.nextLine();
-        System.out.println("Extension (ex: .txt, .jpg): "); String extension= entree.nextLine();
+        System.out.println("Extension (ex: .txt, .jpg, ...): "); String extension= entree.nextLine();
 
         Fichier f = null;
         switch (type) {

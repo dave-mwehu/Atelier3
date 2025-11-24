@@ -19,12 +19,12 @@ public class Texte extends Fichier implements Lisible, Compressible {
 
     @Override
     public String lireContenu() {
-        // Retour simple pour tests ; remplace par la logique réelle si tu charges du contenu
+
         return "Contenu de " + getNom() + " (encodage=" + encodage + ", lignes=" + nombreLignes + ")";
     }
 
     public int compterMots() {
-        return nombreLignes * 10; // approximation ; adapte si besoin
+        return nombreLignes * 10;
     }
 
     @Override
