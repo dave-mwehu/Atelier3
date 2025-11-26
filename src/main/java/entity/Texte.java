@@ -6,7 +6,7 @@ public class Texte extends Fichier implements Lisible, Compressible {
 
     public Texte(String nom, long taille, String chemin, String extension,
                  String encodage, int nombreLignes) {
-        super(nom, taille, chemin, extension); // super doit être la première instruction
+        super(nom, taille, chemin, extension); // appel au constructeur de Fichier
         this.encodage = encodage;
         this.nombreLignes = Math.max(0, nombreLignes);
     }
@@ -19,12 +19,11 @@ public class Texte extends Fichier implements Lisible, Compressible {
 
     @Override
     public String lireContenu() {
-
         return "Contenu de " + getNom() + " (encodage=" + encodage + ", lignes=" + nombreLignes + ")";
     }
 
     public int compterMots() {
-        return nombreLignes * 10;
+        return nombreLignes * 10; // approximation simple
     }
 
     @Override
@@ -37,9 +36,22 @@ public class Texte extends Fichier implements Lisible, Compressible {
         System.out.println("Décompression du fichier texte " + getNom());
     }
 
+    // Implémentation de la méthode abstraite de la class Fichier
+    @Override
+    public void afficherInfos() {
+        System.out.println("Texte : " + getNom() +
+                " | Taille=" + getTaille() +
+                " | Encodage=" + encodage +
+                " | Lignes=" + nombreLignes);
+    }
+
     @Override
     public String toString() {
-        return "Texte{" + "nom=" + getNom() + ", taille=" + getTaille() +
-                ", encodage=" + encodage + ", lignes=" + nombreLignes + "}";
+        return "Texte{" +
+                "nom=" + getNom() +
+                ", taille=" + getTaille() +
+                ", encodage=" + encodage +
+                ", lignes=" + nombreLignes +
+                "}";
     }
 }

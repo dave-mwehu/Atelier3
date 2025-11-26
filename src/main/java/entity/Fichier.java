@@ -3,7 +3,7 @@ package entity;
 import java.util.Date;
 import java.util.Objects;
 
-public class Fichier {
+public abstract class Fichier {
     protected String nom;
     protected long taille;
     protected Date dateCreation;
@@ -47,7 +47,7 @@ public class Fichier {
     public void creerNouveau() { System.out.println("Nouveau fichier créé : " + nom); }
     public void ouvrir() { System.out.println("Ouverture du fichier : " + nom); }
     public void fermer() { System.out.println("Fermeture du fichier : " + nom); }
-
+    public abstract void afficherInfos();
     @Override
     public String toString() {
         return "Fichier{" +

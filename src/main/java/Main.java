@@ -1,14 +1,14 @@
 import dao.FichierListRepository;
 import dao.FichierRepository;
+import dao.FichierGsonRepository;
 import entity.*;
 
 import java.util.List;
 import java.util.Scanner;
-import java.time.LocalDate;
 
 public class Main {
     private static final Scanner entree = new Scanner(System.in);
-    private static FichierRepository repo = new FichierListRepository();
+    private static FichierRepository repo = new FichierGsonRepository("fichiers.json");
 
     public static void main(String[] args) {
         boolean demarrer = true;
@@ -33,66 +33,77 @@ public class Main {
                     case "5" -> supprimer();
                     case "6" -> testerActions();
                     case "0" -> demarrer = false;
-                    default -> System.out.println("Choix invalide.");
+                    default -> System.out.println("❌ Choix invalide.");
                 }
             } catch (Exception e) {
-                System.out.println("Erreur " + e.getMessage());
+                System.out.println("⚠️ Erreur : " + e.getMessage());
             }
         }
-        System.out.println("Au revoir.");
+        System.out.println("👋 Au revoir.");
     }
 
     private static void ajouterFichier() {
         System.out.println("Type de fichier (texte/image/video/audio): ");
-        String type= entree.nextLine().trim().toLowerCase();
+        String type = entree.nextLine().trim().toLowerCase();
 
-        System.out.println("Nom: "); String nom= entree.nextLine();
-        System.out.println("Taille (long): "); long taille = Long.parseLong(entree.nextLine());
-        System.out.println("Chemin: "); String chemin= entree.nextLine();
-        System.out.println("Extension (ex: .txt, .jpg, ...): "); String extension= entree.nextLine();
+        System.out.print("Nom: "); String nom = entree.nextLine();
+        System.out.print("Taille (long): "); long taille = Long.parseLong(entree.nextLine());
+        System.out.print("Chemin: "); String chemin = entree.nextLine();
+        System.out.print("Extension (ex: .txt, .jpg, ...): "); String extension = entree.nextLine();
 
         Fichier f = null;
         switch (type) {
             case "texte" -> {
-                System.out.println("Encodage: "); String enc = entree.nextLine();
-                System.out.println("Nombre de lignes: "); int n = Integer.parseInt(entree.nextLine());
+                System.out.print("Encodage: "); String enc = entree.nextLine();
+                System.out.print("Nombre de lignes: "); int n = Integer.parseInt(entree.nextLine());
                 f = new Texte(nom, taille, chemin, extension, enc, n);
             }
             case "image" -> {
-                System.out.println("Résolution (ex: 1920x1080): "); String res = entree.nextLine();
-                System.out.println("Format (ex: JPEG, PNG): "); String format = entree.nextLine();
+                System.out.print("Résolution (ex: 1920x1080): "); String res = entree.nextLine();
+                System.out.print("Format (ex: JPEG, PNG): "); String format = entree.nextLine();
                 f = new Image(nom, taille, chemin, extension, res, format);
             }
             case "video" -> {
-                System.out.println("Durée (sec): "); int duree = Integer.parseInt(entree.nextLine());
-                System.out.println("Codec (ex: H264): "); String codec = entree.nextLine();
+                System.out.print("Durée (sec): "); int duree = Integer.parseInt(entree.nextLine());
+                System.out.print("Codec (ex: H264): "); String codec = entree.nextLine();
                 f = new Video(nom, taille, chemin, extension, duree, codec);
             }
-            default -> System.out.println("Type inconnu.");
+            case "audio" -> {
+                System.out.print("Durée (sec): "); int duree = Integer.parseInt(entree.nextLine());
+                System.out.print("Débit binaire (kbps): "); int kbps = Integer.parseInt(entree.nextLine());
+                f = new Audio(nom, taille, chemin, extension, duree, kbps);
+            }
+            default -> System.out.println("❌ Type inconnu.");
         }
         if (f != null) {
             repo.ajouter(f);
-            System.out.println("Ajout réussi: " + f);
+            System.out.println("✅ Ajout réussi: " + f.getNom());
         }
     }
+
     private static void lister() {
         List<Fichier> fichiers = repo.listerTous();
-        if (fichiers.isEmpty()) System.out.println("Aucun fichier.");
-        else fichiers.forEach(System.out::println);
+        if (fichiers.isEmpty()) {
+            System.out.println("⚠️ Aucun fichier.");
+        } else {
+            System.out.println("📂 Liste des fichiers :");
+            fichiers.forEach(Fichier::afficherInfos); // polymorphisme
+        }
     }
+
     private static void rechercher() {
         System.out.print("Nom à rechercher: ");
         String nom = entree.nextLine();
         Fichier f = repo.trouverParNom(nom);
-        System.out.println(f != null ? f : "Introuvable");
+        System.out.println(f != null ? "🔎 Résultat : " + f : "❌ Introuvable");
     }
+
     private static void mettreAJour() {
         System.out.print("Nom du fichier à mettre à jour: ");
         String nom = entree.nextLine();
         Fichier existant = repo.trouverParNom(nom);
-        if (existant == null) { System.out.println("Introuvable"); return; }
+        if (existant == null) { System.out.println("❌ Introuvable"); return; }
 
-        // On redemande toutes les infos pour créer une nouvelle instance mise à jour
         System.out.print("Nouvelle taille (long): "); long taille = Long.parseLong(entree.nextLine());
         System.out.print("Nouveau chemin: "); String chemin = entree.nextLine();
         System.out.print("Nouvelle extension: "); String ext = entree.nextLine();
@@ -117,28 +128,29 @@ public class Main {
         }
 
         boolean ok = maj != null && repo.mettreAjour(maj);
-        System.out.println(ok ? "Mise à jour réussie" : "Échec de mise à jour");
+        System.out.println(ok ? "🔄 Mise à jour réussie" : "❌ Échec de mise à jour");
     }
 
     private static void supprimer() {
         System.out.print("Nom à supprimer: ");
         String nom = entree.nextLine();
         boolean ok = repo.supprimer(nom);
-        System.out.println(ok ? "Supprimé" : "Introuvable");
+        System.out.println(ok ? "🗑️ Supprimé" : "❌ Introuvable");
     }
 
     private static void testerActions() {
         System.out.print("Nom du fichier pour tester: ");
         String nom = entree.nextLine();
         Fichier f = repo.trouverParNom(nom);
-        if (f == null) { System.out.println("Introuvable"); return; }
+        if (f == null) { System.out.println("❌ Introuvable"); return; }
 
-        System.out.println("Type: " + f.getClass().getSimpleName());
+        System.out.println("=== Test polymorphe ===");
+        f.afficherInfos(); // polymorphisme
         System.out.println(f.lire());
 
         if (f instanceof Lisible l) {
             System.out.println(l.lireContenu());
-            if (f instanceof Texte ft) System.out.println("Mots (approx): " + ft.compterMots());
+            if (f instanceof Texte ft) System.out.println("📝 Mots (approx): " + ft.compterMots());
         }
         if (f instanceof Affichable a) {
             a.afficher();
